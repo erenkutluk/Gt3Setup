@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACC GT3 — Setup Rehberi</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%23111111'/%3E%3Ctext x='90' y='96' font-family='Georgia,serif' font-size='52' font-weight='bold' fill='%23D40019' text-anchor='middle'%3EGT3%3C/text%3E%3Cline x1='30' y1='112' x2='150' y2='112' stroke='%23D40019' stroke-width='4'/%3E%3Ctext x='90' y='138' font-family='Arial,sans-serif' font-size='18' fill='%23888880' text-anchor='middle'%3ESETUP%3C/text%3E%3C/svg%3E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="GT3 Setup">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F5F4F0;
+  --surface: #FFFFFF;
+  --border: #E0DED8;
+  --border-strong: #C8C5BE;
+  --text: #111111;
+  --text-muted: #555550;
+  --text-light: #888880;
+  --red: #D40019;
+  --red-soft: rgba(212,0,25,0.08);
+  --blue: #0050D0;
+  --blue-soft: rgba(0,80,208,0.08);
+  --green: #006E2E;
+  --green-soft: rgba(0,110,46,0.08);
+  --amber: #A86200;
+  --amber-soft: rgba(168,98,0,0.08);
+  --sidebar-w: 230px;
+}
+
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 10;
+}
+
+.sidebar-brand {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--red);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.brand-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  line-height: 1.15;
+  color: var(--text);
+}
+
+.brand-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.sidebar-nav {
+  padding: 16px 12px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.nav-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--text-light);
+  text-transform: uppercase;
+  padding: 0 8px;
+  margin-bottom: 6px;
+  margin-top: 16px;
+}
+
+.nav-label:first-child { margin-top: 0; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 400;
+  transition: all 0.12s;
+  border: 1px solid transparent;
+  margin-bottom: 2px;
+}
+
+.nav-item:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.nav-item.active {
+  background: var(--red-soft);
+  color: var(--red);
+  font-weight: 600;
+  border-color: rgba(232,0,29,0.15);
+}
+
+.nav-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+.nav-item.active .nav-dot { opacity: 1; }
+
+.nav-item[data-type="over"] .nav-dot { background: var(--red); }
+.nav-item[data-type="under"] .nav-dot { background: var(--blue); }
+.nav-item[data-type="tire"] .nav-dot { background: var(--green); }
+.nav-item[data-type="aero"] .nav-dot { background: var(--amber); }
+.nav-item[data-type="brake"] .nav-dot { background: #7C3AED; }
+.nav-item[data-type="susp"] .nav-dot { background: #0891B2; }
+.nav-item[data-type="overview"] .nav-dot { background: var(--text-muted); }
+
+.nav-item.active[data-type="over"] { background: var(--red-soft); color: var(--red); border-color: rgba(232,0,29,0.15); }
+.nav-item.active[data-type="under"] { background: var(--blue-soft); color: var(--blue); border-color: rgba(0,87,232,0.15); }
+.nav-item.active[data-type="tire"] { background: var(--green-soft); color: var(--green); border-color: rgba(0,136,58,0.15); }
+.nav-item.active[data-type="aero"] { background: var(--amber-soft); color: var(--amber); border-color: rgba(196,122,0,0.15); }
+.nav-item.active[data-type="brake"] { background: rgba(124,58,237,0.08); color: #7C3AED; border-color: rgba(124,58,237,0.15); }
+.nav-item.active[data-type="susp"] { background: rgba(8,145,178,0.08); color: #0891B2; border-color: rgba(8,145,178,0.15); }
+.nav-item.active[data-type="overview"] { background: rgba(138,135,128,0.1); color: var(--text); border-color: var(--border); }
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-light);
+  line-height: 1.5;
+}
+
+/* ── MAIN CONTENT ── */
+.content {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  padding: 40px 40px 60px;
+  max-width: calc(760px + var(--sidebar-w));
+}
+
+/* ── SECTION ── */
+.panel { display: none; }
+.panel.active {
+  display: block;
+  animation: enter 0.18s ease;
+}
+
+@keyframes enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.panel-header {
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.panel-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 32px;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.panel-title .accent { color: var(--red); }
+
+.panel-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  max-width: 520px;
+}
+
+/* ── PROBLEM CARDS ── */
+.cards { display: flex; flex-direction: column; gap: 1px; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  overflow: hidden;
+  transition: border-color 0.12s;
+}
+
+.cards .card:first-child { border-radius: 10px 10px 0 0; }
+.cards .card:last-child { border-radius: 0 0 10px 10px; }
+.cards .card:only-child { border-radius: 10px; }
+
+.card.open { border-color: var(--border-strong); z-index: 1; position: relative; }
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.1s;
+}
+
+.card-header:hover { background: var(--bg); }
+.card.open .card-header { background: var(--bg); }
+
+.card-type-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+.pill-over  { background: var(--red-soft);   color: var(--red); }
+.pill-under { background: var(--blue-soft);  color: var(--blue); }
+.pill-mech  { background: var(--green-soft); color: var(--green); }
+.pill-warn  { background: var(--amber-soft); color: var(--amber); }
+
+.card-name {
+  flex: 1;
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.card-chevron {
+  color: var(--text-light);
+  font-size: 16px;
+  line-height: 1;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.card.open .card-chevron { transform: rotate(90deg); color: var(--text-muted); }
+
+.card-body {
+  display: none;
+  border-top: 1px solid var(--border);
+}
+.card.open .card-body { display: block; }
+
+.card-situation {
+  padding: 14px 18px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ── FIX TABLE ── */
+.fix-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.fix-row {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+.fix-row:last-child { border-bottom: none; }
+.fix-row:hover { background: #FAFAF8; }
+
+.fix-row td {
+  padding: 15px 18px;
+  vertical-align: top;
+}
+
+.fix-prio-cell { width: 80px; }
+
+.prio-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.prio-1 { background: #FEE2E2; color: #B91C1C; }
+.prio-2 { background: #FEF3C7; color: #92400E; }
+.prio-3 { background: #F1F5F9; color: #475569; }
+
+.fix-param-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text);
+  margin-bottom: 5px;
+}
+
+.fix-action {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.fix-action .dir {
+  display: inline-block;
+  background: var(--text);
+  color: var(--surface);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 3px;
+  margin-right: 7px;
+  letter-spacing: 0.06em;
+}
+
+.fix-action .dir.up   { background: var(--blue); }
+.fix-action .dir.down { background: var(--red); }
+.fix-action .dir.fwd  { background: var(--green); }
+.fix-action .dir.back { background: var(--amber); }
+
+.fix-tip {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--border);
+}
+
+/* ── OVERVIEW ── */
+.overview-intro {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.75;
+  max-width: 560px;
+  margin-bottom: 32px;
+}
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+
+.kpi-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.kpi-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kpi-list li {
+  font-size: 13px;
+  color: var(--text);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.kpi-list li::before {
+  content: '';
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--red);
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.rule-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--red);
+  border-radius: 0 8px 8px 0;
+  padding: 16px 20px;
+  margin-top: 8px;
+}
+
+.rule-box-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 8px;
+}
+
+.rule-box p {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+/* ── TIRE GRID ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+@media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+
+.data-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.data-card-head {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.data-card-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.data-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.data-row:last-child { border-bottom: none; }
+
+.data-key { color: var(--text-muted); }
+
+.data-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.data-val.good  { color: var(--green); }
+.data-val.warn  { color: var(--amber); }
+.data-val.bad   { color: var(--red); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 680px) {
+  .sidebar { width: 100%; min-height: auto; position: relative; flex-direction: row; flex-wrap: wrap; }
+  body { flex-direction: column; }
+  .content { margin-left: 0; padding: 20px; }
+  .sidebar-nav { display: flex; flex-wrap: wrap; gap: 4px; padding: 12px; }
+  .nav-item { padding: 6px 10px; font-size: 12px; }
+  .sidebar-brand, .sidebar-footer { display: none; }
+  .nav-label { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-eyebrow">ACC · GT3</div>
+    <div class="brand-title">Setup<br>Rehberi</div>
+    <div class="brand-sub">Online Yarış Versiyonu</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-label">Başlangıç</div>
+    <div class="nav-item active" data-type="overview" onclick="showPanel('overview', this)">
+      <span class="nav-dot"></span> Genel Bakış
+    </div>
+
+    <div class="nav-label">Denge Sorunları</div>
+    <div class="nav-item" data-type="over" onclick="showPanel('oversteer', this)">
+      <span class="nav-dot"></span> Oversteer
+    </div>
+    <div class="nav-item" data-type="under" onclick="showPanel('understeer', this)">
+      <span class="nav-dot"></span> Understeer
+    </div>
+
+    <div class="nav-label">Bileşenler</div>
+    <div class="nav-item" data-type="tire" onclick="showPanel('tires', this)">
+      <span class="nav-dot"></span> Lastikler
+    </div>
+    <div class="nav-item" data-type="aero" onclick="showPanel('aero', this)">
+      <span class="nav-dot"></span> Aerodinamik
+    </div>
+    <div class="nav-item" data-type="brake" onclick="showPanel('brakes', this)">
+      <span class="nav-dot"></span> Frenler
+    </div>
+    <div class="nav-item" data-type="susp" onclick="showPanel('suspension', this)">
+      <span class="nav-dot"></span> Süspansiyon
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    Bir seferde<br>tek parametre değiştir.
+  </div>
+</aside>
+
+<!-- CONTENT -->
+<main class="content">
+
+  <!-- OVERVIEW -->
+  <div class="panel active" id="panel-overview">
+    <div class="panel-header">
+      <div class="panel-eyebrow">Başlangıç Noktası</div>
+      <div class="panel-title">Setup'a<br><span class="accent">Nereden Başlamalısın</span></div>
+      <div class="panel-desc">Sorun yaşıyorsan soldaki menüden kategoriye git. İlk kez setup yapıyorsan aşağıdan başla.</div>
+    </div>
+
+    <p class="overview-intro">
+      GT3 setup'ı katmanlı bir işlemdir. Her parametrenin birden fazla etkisi vardır.
+      Doğru sırayla gitmek, değişikliklerin etkisini izole etmeni sağlar.
+    </p>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Setup Sırası</div>
+        <ul class="kpi-list">
+          <li>Lastik basınçları</li>
+          <li>Ride height</li>
+          <li>Aerodinamik</li>
+          <li>Süspansiyon</li>
+          <li>Fren dengesi</li>
+          <li>TC / ABS</li>
+        </ul>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Oversteer İşaretleri</div>
+        <ul class="kpi-list">
+          <li>Viraj girişinde arka kayıyor</li>
+          <li>Gaz çıkışında spin</li>
+          <li>Hızlı köşede kayma</li>
+          <li>Direksiyonu bırakınca düzelmez</li>
+        </ul>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Understeer İşaretleri</div>
+        <ul class="kpi-list">
+          <li>Araç dönmüyor, düz gidiyor</li>
+          <li>Burun ağır hissettiriyor</li>
+          <li>Erken fren gerekiyor</li>
+          <li>Geniş çıkış yapıyorsun</li>
+        </ul>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Hızlı Kontroller</div>
+        <ul class="kpi-list">
+          <li>Lastik ısısı 85–95°C</li>
+          <li>Basınç 27–29 psi (dry)</li>
+          <li>Ön/arka DF dengesi</li>
+          <li>ARB uyumu</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rule-box">
+      <div class="rule-box-title">Altın Kural</div>
+      <p>Bir seferde yalnızca bir parametre değiştir. Birden fazlasını değiştirirsen hangisinin ne etki ettiğini anlayamazsın. ACC telemetrisini aç, lastik ısılarını ve süspansiyon hareketlerini takip et.</p>
+    </div>
+  </div>
+
+  <!-- OVERSTEER -->
+  <div class="panel" id="panel-oversteer">
+    <div class="panel-header">
+      <div class="panel-eyebrow">Denge Sorunu</div>
+      <div class="panel-title">Oversteer —<br><span class="accent">Arka Uç Kayıyor</span></div>
+      <div class="panel-desc">Arka kaymak ne zaman, nasıl hissettiriyor? Aşağıdan senaryonu seç.</div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="card-type-pill pill-over">Entry OS</span>
+          <span class="card-name">Viraj girişinde arka kayıyor</span>
+          <span class="card-chevron">›</span>
+        </div>
+        <div class="card-body">
+          <div class="card-situation">Freni bırakırken veya virajın ilk anında arka uç dışa çıkıyor, spin tehlikesi var.</div>
+          <table class="fix-table">
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-1">P1</span></td>
+              <td>
+                <div class="fix-param-name">Arka ARB</div>
+                <div class="fix-action"><span class="dir down">AZALT</span>Daha yumuşak ARB = arka tekerlekler bağımsız hareket eder = entry grip artar.</div>
+                <div class="fix-tip">Çok azaltırsan mid-corner understeer başlayabilir.</div>
+              </td>
+            </tr>
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-1">P1</span></td>
+              <td>
+                <div class="fix-param-name">Arka Yay Sertliği</div>
+                <div class="fix-action"><span class="dir down">AZALT</span>Yumuşak yay = lastik zemine daha iyi oturur = kayma azalır.</div>
+              </td>
+            </tr>
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-2">P2</span></td>
+              <td>
+                <div class="fix-param-name">Fren Dengesi</div>
+                <div class="fix-action"><span class="dir fwd">ÖNE AL</span>Daha fazla ön fren = arka üzerindeki yük azalır = spin azalır.</div>
+                <div class="fix-tip">İdeal aralık genelde %52–56 ön. Çok öne alırsan ön kilitlenir.</div>
+              </td>
+            </tr>
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-2">P2</span></td>
+              <td>
+                <div class="fix-param-name">Arka Toe</div>
+                <div class="fix-action"><span class="dir up">ARTIR (toe-in)</span>Hafif pozitif arka toe = daha stabil giriş, doğrudan yön stabilitesi.</div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="card-type-pill pill-over">Traction OS</span>
+          <span class="card-name">Gaz verince arka çekiyor (çıkış)</span>
+          <span class="card-chevron">›</span>
+        </div>
+        <div class="card-body">
+          <div class="card-situation">Viraj çıkışında gaz verdiğinde arka uç içe çekilip spin tehlikesi oluşuyor.</div>
+          <table class="fix-table">
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-1">P1</span></td>
+              <td>
+                <div class="fix-param-name">TC (Traction Control)</div>
+                <div class="fix-action"><span class="dir up">ARTIR</span>TC1 veya TC2'yi 1–2 birim yükselt. Çıkış kontrolü düzelir.</div>
+                <div class="fix-tip">Yüksek TC lap time'ı arttırır. Sadece gerektiği kadar kullan.</div>
+              </td>
+            </tr>
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-1">P1</span></td>
+              <td>
+                <div class="fix-param-name">Arka Wing Açısı</div>
+                <div class="fix-action"><span class="dir up">ARTIR</span>Daha fazla arka downforce = çıkış gripi artar = spin azalır.</div>
+                <div class="fix-tip">Uzun düzlük varsa top speed düşer, dikkat.</div>
+              </td>
+            </tr>
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-2">P2</span></td>
+              <td>
+                <div class="fix-param-name">Diferansiyel (Power Lock)</div>
+                <div class="fix-action"><span class="dir down">AZALT</span>Daha az kilitleme = arka tekerlekler daha serbest = traction OS azalır.</div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="card-type-pill pill-over">High Speed OS</span>
+          <span class="card-name">Hızlı virajda arka çekiliyor</span>
+          <span class="card-chevron">›</span>
+        </div>
+        <div class="card-body">
+          <div class="card-situation">130R, Raidillon gibi yüksek hızlı köşelerde arka uç güvensiz hissettiriyor.</div>
+          <table class="fix-table">
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-1">P1</span></td>
+              <td>
+                <div class="fix-param-name">Arka Wing</div>
+                <div class="fix-action"><span class="dir up">ARTIR</span>Yüksek hızda downforce kritik. Önce wing'i artır.</div>
+              </td>
+            </tr>
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-1">P1</span></td>
+              <td>
+                <div class="fix-param-name">Arka Süspansiyon Sertliği</div>
+                <div class="fix-action"><span class="dir up">ARTIR</span>Yüksek DF altında sert süspansiyon = stabil platform.</div>
+                <div class="fix-tip">Aerodinamik yük arttıkça süspansiyon sertliği de artmalıdır.</div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UNDERSTEER -->
+  <div class="panel" id="panel-understeer">
+    <div class="panel-header">
+      <div class="panel-eyebrow">Denge Sorunu</div>
+      <div class="panel-title">Understeer —<br><span class="accent" style="color:var(--blue)">Araç Dönmüyor</span></div>
+      <div class="panel-desc">Ön uç grip kaybı nerede yaşanıyor? Senaryonu seç.</div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="card-type-pill pill-under">Entry US</span>
+          <span class="card-name">Viraj girişinde araç dönmüyor</span>
+          <span class="card-chevron">›</span>
+        </div>
+        <div class="card-body">
+          <div class="card-situation">Freni bırakıp direksiyon çevirdiğinde araç düz gidiyor, burun ağır ve yavaş.</div>
+          <table class="fix-table">
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-1">P1</span></td>
+              <td>
+                <div class="fix-param-name">Ön ARB</div>
+                <div class="fix-action"><span class="dir down">AZALT</span>Yumuşak ön ARB = ön tekerlekler bağımsız hareket eder = daha fazla grip.</div>
+              </td>
+            </tr>
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-1">P1</span></td>
+              <td>
+                <div class="fix-param-name">Fren Dengesi</div>
+                <div class="fix-action"><span class="dir back">ARKAYA AL</span>Hafif arka ağırlıklı fren = ön daha serbest döner.</div>
+                <div class="fix-tip">1–2% dene. Çok arkaya alırsan entry oversteer başlar.</div>
+              </td>
+            </tr>
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-2">P2</span></td>
+              <td>
+                <div class="fix-param-name">Ön Ride Height</div>
+                <div class="fix-action"><span class="dir down">AZALT</span>Düşük ön = daha fazla ön downforce = daha fazla ön grip.</div>
+                <div class="fix-tip">Zemin clearance'ına dikkat. Sparks görürsen geri al.</div>
+              </td>
+            </tr>
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-2">P2</span></td>
+              <td>
+                <div class="fix-param-name">Ön Camber</div>
+                <div class="fix-action"><span class="dir down">NEGATIF ARTIR</span>−2.5° → −3.0° arası dene. Virajda daha fazla temas alanı.</div>
+                <div class="fix-tip">Çok fazla camber düz frenlemede grip kaybettirir.</div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="card-type-pill pill-under">Mid-Corner US</span>
+          <span class="card-name">Viraj ortasında araç düz gidiyor</span>
+          <span class="card-chevron">›</span>
+        </div>
+        <div class="card-body">
+          <div class="card-situation">Virajın orta kısmında dönüş yanıtı kayboluyor, geniş gidiyorsun.</div>
+          <table class="fix-table">
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-1">P1</span></td>
+              <td>
+                <div class="fix-param-name">Ön Yay Sertliği</div>
+                <div class="fix-action"><span class="dir down">AZALT</span>Yumuşak yay = lastik zemine daha iyi oturur = mid-corner grip artar.</div>
+              </td>
+            </tr>
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-1">P1</span></td>
+              <td>
+                <div class="fix-param-name">Arka ARB</div>
+                <div class="fix-action"><span class="dir up">ARTIR</span>Sert arka = arka az yuvarlanır = ön daha fazla load alır = döner.</div>
+                <div class="fix-tip">Entry oversteer yoksa uygula. Varsa başka bir çözüme bak.</div>
+              </td>
+            </tr>
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-2">P2</span></td>
+              <td>
+                <div class="fix-param-name">Ön Toe</div>
+                <div class="fix-action"><span class="dir down">TOE-OUT ARTIR</span>Hafif negatif toe = daha agresif dönüş yanıtı.</div>
+                <div class="fix-tip">Çok fazla toe-out düzlükte instabilite yaratır.</div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIRES -->
+  <div class="panel" id="panel-tires">
+    <div class="panel-header">
+      <div class="panel-eyebrow">Bileşen</div>
+      <div class="panel-title">Lastikler &<br><span class="accent" style="color:var(--green)">Basınç Yönetimi</span></div>
+      <div class="panel-desc">Sıcaklık ve basınç referansları + sorun çözümleri.</div>
+    </div>
+
+    <div class="two-col">
+      <div class="data-card">
+        <div class="data-card-head"><div class="data-card-title">İdeal Sıcaklık (Dry)</div></div>
+        <div class="data-row"><span class="data-key">Optimal aralık</span><span class="data-val good">85–95°C</span></div>
+        <div class="data-row"><span class="data-key">Soğuk (grip yok)</span><span class="data-val warn">&lt; 70°C</span></div>
+        <div class="data-row"><span class="data-key">Aşırı sıcak</span><span class="data-val bad">&gt; 105°C</span></div>
+        <div class="data-row"><span class="data-key">Wet optimal</span><span class="data-val good">60–80°C</span></div>
+      </div>
+      <div class="data-card">
+        <div class="data-card-head"><div class="data-card-title">Basınç (Dry)</div></div>
+        <div class="data-row"><span class="data-key">Başlangıç (soğuk)</span><span class="data-val">27.0–27.5 psi</span></div>
+        <div class="data-row"><span class="data-key">Yarış sıcak (ideal)</span><span class="data-val good">28.5–29.5 psi</span></div>
+        <div class="data-row"><span class="data-key">Maksimum sınır</span><span class="data-val bad">31.0 psi</span></div>
+        <div class="data-row"><span class="data-key">Wet başlangıç</span><span class="data-val">29.0–30.0 psi</span></div>
+      </div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="card-type-pill pill-warn">Aşınma</span>
+          <span class="card-name">Lastikler çok sıcak / hızlı yıpranıyor</span>
+          <span class="card-chevron">›</span>
+        </div>
+        <div class="card-body">
+          <div class="card-situation">Kısa sürede grip düşüyor, lastik telemetrisinde sıcaklık kırmızıya giriyor.</div>
+          <table class="fix-table">
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-1">P1</span></td>
+              <td>
+                <div class="fix-param-name">Başlangıç Basıncı</div>
+                <div class="fix-action"><span class="dir down">AZALT 0.5 psi</span>Düşük başlangıç = ısındıktan sonra ideal bölgede kalır.</div>
+              </td>
+            </tr>
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-2">P2</span></td>
+              <td>
+                <div class="fix-param-name">Camber Açısı</div>
+                <div class="fix-action"><span class="dir back">DÜZELT</span>İç kenar ısınıyorsa camber azalt. Dış kenar ısınıyorsa artır.</div>
+                <div class="fix-tip">İç/orta/dış ısıları birbirinden 5–10°C'den fazla farklı olmamalı.</div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="card-type-pill pill-mech">Soğuk</span>
+          <span class="card-name">Lastikler ısınmıyor, ilk turlarda grip yok</span>
+          <span class="card-chevron">›</span>
+        </div>
+        <div class="card-body">
+          <div class="card-situation">Yarış başında veya pit sonrası lastikler çalışmıyor, araç kayıyor.</div>
+          <table class="fix-table">
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-1">P1</span></td>
+              <td>
+                <div class="fix-param-name">Başlangıç Basıncı</div>
+                <div class="fix-action"><span class="dir up">ARTIR 0.5 psi</span>Yüksek basınç = lastik daha hızlı ısınır.</div>
+              </td>
+            </tr>
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-2">P2</span></td>
+              <td>
+                <div class="fix-param-name">Sürüş Tekniği (Warm-up)</div>
+                <div class="fix-action"><span class="dir fwd">UYGULA</span>İlk 2–3 turda agresif frenleme yap. S-manevralar ve hafif weaving ile ısıt.</div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AERO -->
+  <div class="panel" id="panel-aero">
+    <div class="panel-header">
+      <div class="panel-eyebrow">Bileşen</div>
+      <div class="panel-title">Aerodinamik —<br><span class="accent" style="color:var(--amber)">Downforce Dengesi</span></div>
+      <div class="panel-desc">Pist karakterine göre ön/arka downforce dengesini yönet.</div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="card-type-pill pill-warn">Yüksek DF</span>
+          <span class="card-name">Daha fazla grip ve stabilite istiyorum</span>
+          <span class="card-chevron">›</span>
+        </div>
+        <div class="card-body">
+          <div class="card-situation">Orta/yavaş pisler için. Spa, Nürburgring, Zandvoort gibi teknik pistler.</div>
+          <table class="fix-table">
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-1">P1</span></td>
+              <td>
+                <div class="fix-param-name">Arka Wing</div>
+                <div class="fix-action"><span class="dir up">ARTIR</span>Her derece ≈5–10 kg ek arka DF. Oversteer azalır, traction artar.</div>
+              </td>
+            </tr>
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-1">P1</span></td>
+              <td>
+                <div class="fix-param-name">Splitter (Ön)</div>
+                <div class="fix-action"><span class="dir up">ARTIR</span>Ön grip artar. Ama sadece ön artırırsan arka hafifler, oversteer başlayabilir.</div>
+                <div class="fix-tip">Ön/arka DF dengesini korumaya çalış. İkisini birlikte ayarla.</div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="card-type-pill pill-warn">Düşük DF</span>
+          <span class="card-name">Düzlükte max hız istiyorum</span>
+          <span class="card-chevron">›</span>
+        </div>
+        <div class="card-body">
+          <div class="card-situation">Monza, Mugello gibi uzun düzlüklü pistler. Az DF = az drag = yüksek top speed.</div>
+          <table class="fix-table">
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-1">P1</span></td>
+              <td>
+                <div class="fix-param-name">Arka Wing</div>
+                <div class="fix-action"><span class="dir down">AZALT</span>Top speed artar ama arka stabilite düşer. Virajlarda telafi gerekir.</div>
+              </td>
+            </tr>
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-2">P2</span></td>
+              <td>
+                <div class="fix-param-name">Süspansiyon Sertliği</div>
+                <div class="fix-action"><span class="dir up">ARTIR</span>Düşük DF'de hızlı köşelerde sert süspansiyon platform stabilitesini korur.</div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BRAKES -->
+  <div class="panel" id="panel-brakes">
+    <div class="panel-header">
+      <div class="panel-eyebrow">Bileşen</div>
+      <div class="panel-title">Fren Sistemi —<br><span class="accent" style="color:#7C3AED">Denge & Isı</span></div>
+      <div class="panel-desc">Fren dengesi ve ABS, her virajda farklı davranabilir.</div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="card-type-pill" style="background:rgba(124,58,237,0.1);color:#7C3AED;">Ön Kilit</span>
+          <span class="card-name">Frenlemede ön kilitleniyor</span>
+          <span class="card-chevron">›</span>
+        </div>
+        <div class="card-body">
+          <div class="card-situation">Frene basınca ön tekerlekler kilitlenir, düz gider, understeer şiddetlenir.</div>
+          <table class="fix-table">
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-1">P1</span></td>
+              <td>
+                <div class="fix-param-name">Fren Dengesi</div>
+                <div class="fix-action"><span class="dir back">ARKAYA AL</span>Ön frenden yükü azalt. 1–2% dene.</div>
+              </td>
+            </tr>
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-1">P1</span></td>
+              <td>
+                <div class="fix-param-name">ABS Seviyesi</div>
+                <div class="fix-action"><span class="dir up">ARTIR</span>Yüksek ABS kilit önler ama fren mesafesi uzar.</div>
+                <div class="fix-tip">Online yarışta ABS 1–3 arası genelde optimal.</div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="card-type-pill" style="background:rgba(124,58,237,0.1);color:#7C3AED;">Isınma</span>
+          <span class="card-name">Frenler ısınıyor, fading başlıyor</span>
+          <span class="card-chevron">›</span>
+        </div>
+        <div class="card-body">
+          <div class="card-situation">Uzun yarışta fren performansı düşüyor, giderek daha erken frenlemek zorunda kalıyorsun.</div>
+          <table class="fix-table">
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-1">P1</span></td>
+              <td>
+                <div class="fix-param-name">Fren Kanalı Açıklığı</div>
+                <div class="fix-action"><span class="dir up">ARTIR</span>Daha fazla hava = daha iyi soğuma. Hafif aerodinamik etkisi var.</div>
+              </td>
+            </tr>
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-2">P2</span></td>
+              <td>
+                <div class="fix-param-name">Balata Seçimi</div>
+                <div class="fix-action"><span class="dir fwd">SERT BALATA</span>Uzun yarış için sert balata daha az fading, daha az aşınma sağlar.</div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUSPENSION -->
+  <div class="panel" id="panel-suspension">
+    <div class="panel-header">
+      <div class="panel-eyebrow">Bileşen</div>
+      <div class="panel-title">Süspansiyon —<br><span class="accent" style="color:#0891B2">Geometri & Damper</span></div>
+      <div class="panel-desc">Platform stabilitesi ve zemin teması için temel ayarlar.</div>
+    </div>
+
+    <div class="two-col" style="margin-bottom:20px">
+      <div class="data-card">
+        <div class="data-card-head"><div class="data-card-title">Camber Referansı</div></div>
+        <div class="data-row"><span class="data-key">Ön</span><span class="data-val">−3.0° / −3.5°</span></div>
+        <div class="data-row"><span class="data-key">Arka</span><span class="data-val">−1.5° / −2.0°</span></div>
+      </div>
+      <div class="data-card">
+        <div class="data-card-head"><div class="data-card-title">Toe Referansı</div></div>
+        <div class="data-row"><span class="data-key">Ön</span><span class="data-val">−0.05 → 0.00</span></div>
+        <div class="data-row"><span class="data-key">Arka</span><span class="data-val good">+0.10 → +0.15</span></div>
+      </div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="card-type-pill" style="background:rgba(8,145,178,0.1);color:#0891B2;">Zemin</span>
+          <span class="card-name">Araç yere vuruyor / sparks çıkıyor</span>
+          <span class="card-chevron">›</span>
+        </div>
+        <div class="card-body">
+          <div class="card-situation">Virajda veya tümsekte araç dibini vuruyor, zemin çarpması hissediliyor.</div>
+          <table class="fix-table">
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-1">P1</span></td>
+              <td>
+                <div class="fix-param-name">Ride Height</div>
+                <div class="fix-action"><span class="dir up">ARTIR</span>Daha yüksek = zemine çarpmaz. Her mm DF kaybı yaratır, minimum artır.</div>
+              </td>
+            </tr>
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-2">P2</span></td>
+              <td>
+                <div class="fix-param-name">Yay Sertliği</div>
+                <div class="fix-action"><span class="dir up">ARTIR</span>Sert yay = az çökme = zemine çarpmaz.</div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <span class="card-type-pill" style="background:rgba(8,145,178,0.1);color:#0891B2;">Damper</span>
+          <span class="card-name">Araç sallanıyor, tepki yavaş</span>
+          <span class="card-chevron">›</span>
+        </div>
+        <div class="card-body">
+          <div class="card-situation">Viraj geçişlerinde araç bir yandan öbür yana sallanıyor, toparlanma yavaş.</div>
+          <table class="fix-table">
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-1">P1</span></td>
+              <td>
+                <div class="fix-param-name">Rebound Damper</div>
+                <div class="fix-action"><span class="dir up">ARTIR</span>Yüksek rebound = yay yavaş geri döner = sallanma azalır.</div>
+              </td>
+            </tr>
+            <tr class="fix-row">
+              <td class="fix-prio-cell"><span class="prio-badge prio-2">P2</span></td>
+              <td>
+                <div class="fix-param-name">Bump Damper</div>
+                <div class="fix-action"><span class="dir up">ARTIR</span>Tümsek geçişlerinde araç daha az çöker.</div>
+                <div class="fix-tip">Çok yüksek bump = araç sert, virajlarda grip kaybeder.</div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+function showPanel(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  el.classList.add('active');
+}
+
+function toggleCard(header) {
+  const card = header.closest('.card');
+  const isOpen = card.classList.contains('open');
+  // Close all in same container
+  card.closest('.cards').querySelectorAll('.card').forEach(c => c.classList.remove('open'));
+  if (!isOpen) card.classList.add('open');
+}
+</script>
+</body>
+</html>
