@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CVcraft — AI Destekli CV Platformu</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0D1B2A;--navy-mid:#152236;--navy-card:#1A2E42;--navy-input:#1e354f;
+  --gold:#C9A84C;--gold-light:#E8C97A;--gold-dim:rgba(201,168,76,0.15);
+  --white:#F0EDE6;--muted:#7A90A4;--danger:#E05252;--success:#4CAF82;
+  --border:rgba(201,168,76,0.15);
+}
+body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font-family:'Inter',sans-serif}
+
+/* ── NAVBAR ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:rgba(13,27,42,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.logo{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;letter-spacing:-0.02em}
+.logo span{color:var(--gold)}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{font-size:0.85rem;color:var(--muted);transition:color .2s;letter-spacing:0.03em}
+.nav-links a:hover,.nav-links a.active{color:var(--white)}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;padding:4px}
+.hamburger span{display:block;width:22px;height:2px;background:var(--white);border-radius:2px;transition:all .3s}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.mobile-menu{display:none;position:fixed;top:60px;left:0;right:0;background:var(--navy-mid);border-bottom:1px solid var(--border);z-index:99;padding:1rem 0}
+.mobile-menu.open{display:block}
+.mobile-menu a{display:block;padding:.75rem 2rem;font-size:.9rem;color:var(--muted);transition:color .2s}
+.mobile-menu a:hover{color:var(--white)}
+
+/* ── PAGES ── */
+.page{display:none;padding-top:72px;min-height:100vh}
+.page.active{display:block}
+
+/* ── HOME ── */
+.hero{text-align:center;padding:5rem 1.5rem 3rem}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--gold-dim);border:1px solid var(--border);border-radius:999px;padding:.35rem 1rem;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-light);margin-bottom:1.5rem}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(2.2rem,6vw,4rem);font-weight:800;line-height:1.08;letter-spacing:-.03em;margin-bottom:1.2rem}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p{color:var(--muted);font-size:1rem;max-width:460px;margin:0 auto 2.5rem;line-height:1.7}
+.hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+.btn-gold{padding:.8rem 2rem;background:var(--gold);border:none;border-radius:10px;color:var(--navy);font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:.02em;transition:all .2s}
+.btn-gold:hover{background:var(--gold-light);transform:translateY(-2px)}
+.btn-outline{padding:.8rem 2rem;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--white);font-size:.9rem;transition:all .2s}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+
+/* FEATURE CARDS */
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.2rem;max-width:900px;margin:3rem auto;padding:0 1.5rem}
+.feat-card{background:var(--navy-card);border:1px solid var(--border);border-radius:14px;padding:1.5rem;transition:border-color .2s}
+.feat-card:hover{border-color:rgba(201,168,76,.4)}
+.feat-icon{font-size:1.5rem;margin-bottom:.75rem}
+.feat-card h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.4rem}
+.feat-card p{font-size:.82rem;color:var(--muted);line-height:1.6}
+
+/* STATS */
+.stats{display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;padding:2rem 1.5rem;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:1rem 0}
+.stat{text-align:center}
+.stat-num{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--gold)}
+.stat-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+
+/* ── BUILDER ── */
+.builder-wrap{max-width:760px;margin:0 auto;padding:2rem 1.5rem}
+.step-bar{display:flex;align-items:center;margin-bottom:2rem;overflow-x:auto;padding-bottom:.5rem}
+.step-item{display:flex;align-items:center;gap:.4rem;white-space:nowrap}
+.step-num{width:28px;height:28px;border-radius:50%;border:2px solid rgba(201,168,76,.3);background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:600;color:var(--muted);transition:all .3s;flex-shrink:0}
+.step-txt{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.step-line{flex:1;height:1px;background:var(--border);margin:0 .5rem;min-width:20px}
+.step-item.active .step-num{border-color:var(--gold);background:var(--gold);color:var(--navy)}
+.step-item.active .step-txt{color:var(--gold-light)}
+.step-item.done .step-num{border-color:var(--gold);color:var(--gold)}
+
+.card{background:var(--navy-card);border:1px solid var(--border);border-radius:16px;padding:2rem}
+.card-title{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:1.5rem}
+.card-title span{color:var(--gold)}
+
+/* FORM ELEMENTS */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.fg.full{grid-template-columns:1fr}
+.field{display:flex;flex-direction:column;gap:.35rem}
+label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:500}
+input,textarea,select{background:var(--navy-input);border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:.7rem 1rem;color:var(--white);font-family:'Inter',sans-serif;font-size:.88rem;transition:border-color .2s;outline:none;width:100%}
+input:focus,textarea:focus,select:focus{border-color:var(--gold)}
+textarea{resize:vertical;min-height:80px}
+select option{background:var(--navy-card)}
+.hint{font-size:.72rem;color:var(--muted);margin-top:.25rem}
+
+/* TAGS */
+.tag-row{display:flex;gap:.5rem;margin-bottom:.6rem}
+.tag-row input{flex:1}
+.add-btn{padding:.7rem 1rem;background:var(--gold-dim);border:1px solid var(--border);border-radius:9px;color:var(--gold);font-size:.82rem;white-space:nowrap;transition:background .2s}
+.add-btn:hover{background:rgba(201,168,76,.25)}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;min-height:32px}
+.tag{display:flex;align-items:center;gap:.3rem;background:var(--gold-dim);border:1px solid rgba(201,168,76,.2);border-radius:999px;padding:.2rem .7rem;font-size:.78rem;color:var(--gold-light)}
+.tag button{background:none;border:none;color:var(--muted);font-size:.9rem;line-height:1;transition:color .2s}
+.tag button:hover{color:var(--danger)}
+
+/* TEMPLATE SELECTOR */
+.templates{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1rem}
+.tpl{border:2px solid var(--border);border-radius:12px;padding:1rem;cursor:pointer;transition:all .2s;text-align:center}
+.tpl:hover{border-color:rgba(201,168,76,.4)}
+.tpl.selected{border-color:var(--gold);background:var(--gold-dim)}
+.tpl-icon{font-size:1.5rem;margin-bottom:.4rem}
+.tpl-name{font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700}
+.tpl-desc{font-size:.72rem;color:var(--muted);margin-top:.2rem}
+
+/* LANG TOGGLE */
+.lang-toggle{display:flex;gap:1rem;margin-bottom:1rem}
+.lang-btn{flex:1;padding:.75rem;border:2px solid var(--border);border-radius:10px;background:transparent;color:var(--muted);font-size:.9rem;font-weight:500;transition:all .2s}
+.lang-btn.selected{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
+
+/* BUTTON ROW */
+.btn-row{display:flex;gap:1rem;margin-top:2rem;justify-content:flex-end}
+.btn-back{padding:.7rem 1.4rem;background:transparent;border:1px solid rgba(255,255,255,.12);border-radius:9px;color:var(--muted);font-size:.88rem;transition:all .2s}
+.btn-back:hover{border-color:var(--white);color:var(--white)}
+.btn-next{padding:.7rem 1.8rem;background:var(--gold);border:none;border-radius:9px;color:var(--navy);font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:.02em;transition:all .2s}
+.btn-next:hover{background:var(--gold-light);transform:translateY(-1px)}
+.btn-next:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+/* AI TOOLS PANEL */
+.ai-tools{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem}
+.ai-tool-btn{padding:1rem;background:var(--navy-input);border:1px solid var(--border);border-radius:12px;color:var(--white);text-align:left;transition:all .2s}
+.ai-tool-btn:hover{border-color:var(--gold);background:var(--gold-dim)}
+.ai-tool-btn .tool-icon{font-size:1.2rem;margin-bottom:.4rem}
+.ai-tool-btn .tool-name{font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700}
+.ai-tool-btn .tool-desc{font-size:.72rem;color:var(--muted);margin-top:.2rem}
+
+/* AI OUTPUT BOX */
+.ai-box{background:var(--navy);border:1px solid var(--border);border-radius:12px;padding:1.2rem;margin-top:1rem}
+.ai-box-header{display:flex;align-items:center;gap:.5rem;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:.75rem}
+.pulse{width:6px;height:6px;background:var(--gold);border-radius:50%;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.ai-box pre{font-size:.84rem;line-height:1.7;color:var(--white);white-space:pre-wrap;font-family:'Inter',sans-serif}
+
+/* CV SCORE */
+.score-wrap{text-align:center;padding:1.5rem 0}
+.score-circle{width:100px;height:100px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;border:4px solid var(--gold)}
+.score-label{font-size:.8rem;color:var(--muted)}
+.score-tips{margin-top:1rem;display:flex;flex-direction:column;gap:.5rem}
+.score-tip{display:flex;align-items:flex-start;gap:.6rem;font-size:.82rem;padding:.6rem;background:var(--navy-input);border-radius:8px}
+.tip-icon{font-size:.9rem;flex-shrink:0;margin-top:.05rem}
+
+/* CV PREVIEW */
+.cv-white{background:#fff;color:#1a1a2e;border-radius:14px;padding:2.5rem;margin-top:1.5rem;font-family:'Inter',sans-serif;line-height:1.6}
+.cv-white h2{font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;color:#0D1B2A;margin-bottom:.2rem}
+.cv-role{font-size:.95rem;color:#C9A84C;font-weight:600;margin-bottom:.6rem}
+.cv-contact{font-size:.78rem;color:#778;display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;margin-bottom:1.2rem}
+.cv-sec-title{font-family:'Syne',sans-serif;font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:#C9A84C;font-weight:700;margin-bottom:.4rem}
+.cv-divider{border:none;border-top:1.5px solid #C9A84C;opacity:.3;margin:.6rem 0 .8rem}
+.cv-sec{margin-bottom:1.1rem}
+.cv-body{font-size:.85rem;color:#334;white-space:pre-wrap}
+.cv-skills-row{display:flex;flex-wrap:wrap;gap:.35rem}
+.cv-skill{background:#f0f0f0;border-radius:4px;padding:.18rem .55rem;font-size:.76rem;color:#445}
+
+/* MODERN TEMPLATE */
+.tpl-modern .cv-white{padding:0;overflow:hidden}
+.tpl-modern .cv-header{background:linear-gradient(135deg,#0D1B2A,#1A3A5C);color:#fff;padding:2rem 2.5rem}
+.tpl-modern .cv-header h2{color:#fff}
+.tpl-modern .cv-header .cv-role{color:#E8C97A}
+.tpl-modern .cv-header .cv-contact{color:rgba(255,255,255,.65)}
+.tpl-modern .cv-body-wrap{padding:2rem 2.5rem}
+
+/* MINIMAL TEMPLATE */
+.tpl-minimal .cv-white{border:1px solid #e0e0e0}
+.tpl-minimal .cv-sec-title{color:#555;border-bottom:1px solid #ddd;padding-bottom:.3rem}
+.tpl-minimal .cv-divider{display:none}
+
+/* OUTPUT ACTIONS */
+.output-actions{display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap}
+.act-btn{padding:.6rem 1.2rem;border-radius:8px;font-size:.82rem;transition:all .2s}
+.act-copy{background:transparent;border:1px solid var(--border);color:var(--gold)}
+.act-copy:hover{background:var(--gold-dim)}
+.act-pdf{background:var(--gold);border:none;color:var(--navy);font-weight:600}
+.act-pdf:hover{background:var(--gold-light)}
+
+/* ── GUIDE PAGE ── */
+.guide-wrap{max-width:720px;margin:0 auto;padding:3rem 1.5rem}
+.guide-hero{margin-bottom:3rem}
+.guide-hero h1{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;margin-bottom:.5rem}
+.guide-hero p{color:var(--muted);line-height:1.6}
+.guide-section{margin-bottom:2.5rem}
+.guide-section h2{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--gold);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.guide-card{background:var(--navy-card);border:1px solid var(--border);border-radius:12px;padding:1.2rem;margin-bottom:.75rem}
+.guide-card h3{font-size:.9rem;font-weight:600;margin-bottom:.35rem}
+.guide-card p{font-size:.82rem;color:var(--muted);line-height:1.6}
+.guide-tag{display:inline-block;font-size:.68rem;padding:.15rem .5rem;border-radius:4px;margin-right:.4rem;margin-bottom:.3rem}
+.tag-do{background:rgba(76,175,130,.15);color:#4CAF82;border:1px solid rgba(76,175,130,.3)}
+.tag-dont{background:rgba(224,82,82,.12);color:#E05252;border:1px solid rgba(224,82,82,.25)}
+
+/* ── EXAMPLES PAGE ── */
+.examples-wrap{max-width:900px;margin:0 auto;padding:3rem 1.5rem}
+.examples-hero{margin-bottom:2rem;text-align:center}
+.examples-hero h1{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;margin-bottom:.5rem}
+.sector-filters{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;margin-bottom:2rem}
+.filter-btn{padding:.45rem 1rem;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem;transition:all .2s}
+.filter-btn:hover,.filter-btn.active{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
+.example-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.2rem}
+.example-card{background:var(--navy-card);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .2s}
+.example-card:hover{border-color:rgba(201,168,76,.4);transform:translateY(-2px)}
+.example-preview{background:#fff;padding:1.2rem;height:160px;overflow:hidden;position:relative}
+.example-preview::after{content:'';position:absolute;bottom:0;left:0;right:0;height:50px;background:linear-gradient(transparent,#fff)}
+.ep-name{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:800;color:#0D1B2A;margin-bottom:.1rem}
+.ep-role{font-size:.72rem;color:#C9A84C;font-weight:600;margin-bottom:.4rem}
+.ep-text{font-size:.68rem;color:#667;line-height:1.5}
+.example-info{padding:.9rem 1rem}
+.example-info h3{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:.2rem}
+.example-info p{font-size:.77rem;color:var(--muted)}
+.example-sector{font-size:.68rem;padding:.15rem .5rem;background:var(--gold-dim);color:var(--gold-light);border-radius:4px;display:inline-block;margin-top:.4rem}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal{background:var(--navy-card);border:1px solid var(--border);border-radius:16px;max-width:600px;width:100%;max-height:85vh;overflow-y:auto;padding:2rem}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
+.modal-header h2{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700}
+.modal-close{background:none;border:none;color:var(--muted);font-size:1.4rem;line-height:1;transition:color .2s}
+.modal-close:hover{color:var(--white)}
+.modal .ai-box{margin-top:.5rem}
+.modal textarea{width:100%;margin-top:.5rem}
+
+/* TOAST */
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--navy-card);border:1px solid var(--gold);border-radius:10px;padding:.8rem 1.4rem;font-size:.85rem;color:var(--white);z-index:300;transform:translateY(100px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* RESPONSIVE */
+@media(max-width:640px){
+  nav .nav-links{display:none}
+  .hamburger{display:flex}
+  .fg{grid-template-columns:1fr}
+  .templates{grid-template-columns:repeat(3,1fr)}
+  .ai-tools{grid-template-columns:1fr}
+  .tpl-name{font-size:.75rem}
+  .card{padding:1.2rem}
+  .builder-wrap{padding:1.5rem 1rem}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="logo">CV<span>craft</span></div>
+  <ul class="nav-links">
+    <li><a href="#" class="active" onclick="showPage('home',this)">Ana Sayfa</a></li>
+    <li><a href="#" onclick="showPage('builder',this)">CV Oluştur</a></li>
+    <li><a href="#" onclick="showPage('guide',this)">Rehber</a></li>
+    <li><a href="#" onclick="showPage('examples',this)">Örnekler</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#" onclick="showPage('home',this);toggleMenu()">Ana Sayfa</a>
+  <a href="#" onclick="showPage('builder',this);toggleMenu()">CV Oluştur</a>
+  <a href="#" onclick="showPage('guide',this);toggleMenu()">Rehber</a>
+  <a href="#" onclick="showPage('examples',this);toggleMenu()">Örnekler</a>
+</div>
+
+<!-- ══ HOME PAGE ══ -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-badge">✦ AI Destekli CV Platformu</div>
+    <h1>Kariyer yolculuğun<br><em>doğru başlasın</em></h1>
+    <p>Bilgilerini gir, yapay zeka seni en iyi şekilde anlatssın. Dakikalar içinde ATS uyumlu, profesyonel CV'n hazır.</p>
+    <div class="hero-btns">
+      <button class="btn-gold" onclick="showPage('builder')">CV Oluşturmaya Başla →</button>
+      <button class="btn-outline" onclick="showPage('examples')">Örnek CV'lere Bak</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num">7</div><div class="stat-label">Adımlı Form</div></div>
+    <div class="stat"><div class="stat-num">5</div><div class="stat-label">AI Araç</div></div>
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">Şablon</div></div>
+    <div class="stat"><div class="stat-num">2</div><div class="stat-label">Dil</div></div>
+  </div>
+
+  <div class="features">
+    <div class="feat-card"><div class="feat-icon">🤖</div><h3>AI Özet Yazar</h3><p>Ham notlarından güçlü, etkileyici profesyonel özet ve iş açıklamaları üretir.</p></div>
+    <div class="feat-card"><div class="feat-icon">📊</div><h3>CV Skoru</h3><p>CV'ni analiz eder, güçlü ve eksik yönlerini gösterir, iyileştirme önerileri sunar.</p></div>
+    <div class="feat-card"><div class="feat-icon">🎯</div><h3>İlana Göre Uyarla</h3><p>İş ilanını yapıştır, AI CV'ni o pozisyona özel optimize etsin.</p></div>
+    <div class="feat-card"><div class="feat-icon">🎤</div><h3>Mülakat Soruları</h3><p>CV'ne göre sorulabilecek mülakat sorularını ve güçlü cevap ipuçlarını gösterir.</p></div>
+    <div class="feat-card"><div class="feat-icon">✉️</div><h3>Kapak Mektubu</h3><p>CV bilgilerinden otomatik, kişiselleştirilmiş kapak mektubu üretir.</p></div>
+    <div class="feat-card"><div class="feat-icon">💼</div><h3>LinkedIn Özeti</h3><p>Aynı bilgilerden etkileyici LinkedIn "Hakkımda" bölümü yazar.</p></div>
+  </div>
+</div>
+
+<!-- ══ BUILDER PAGE ══ -->
+<div class="page" id="page-builder">
+  <div class="builder-wrap">
+    <!-- STEP BAR -->
+    <div class="step-bar" id="stepBar"></div>
+
+    <!-- STEP PANELS -->
+    <div id="builderContent"></div>
+  </div>
+</div>
+
+<!-- ══ GUIDE PAGE ══ -->
+<div class="page" id="page-guide">
+  <div class="guide-wrap">
+    <div class="guide-hero">
+      <h1>CV Yazma <span style="color:var(--gold)">Rehberi</span></h1>
+      <p>İşverenin dikkatini çeken, robotları geçen, mülakata götüren CV nasıl yazılır?</p>
+    </div>
+
+    <div class="guide-section">
+      <h2>📏 Uzunluk ve Format</h2>
+      <div class="guide-card">
+        <h3>Kaç sayfa olmalı?</h3>
+        <p>Deneyimin 10 yıldan azsa <strong>1 sayfa idealdir.</strong> Türkiye'de 2 sayfa kabul görür. 3+ sayfa neredeyse hiç okunmaz. Az ama öz — her satır değer katmalı.</p>
+        <div style="margin-top:.5rem"><span class="guide-tag tag-do">✓ 1-2 sayfa</span><span class="guide-tag tag-dont">✗ 3+ sayfa</span></div>
+      </div>
+      <div class="guide-card">
+        <h3>Dosya formatı ne olmalı?</h3>
+        <p><strong>PDF kullan.</strong> Word dosyası farklı bilgisayarlarda bozulabilir. PDF her cihazda aynı görünür.</p>
+        <div style="margin-top:.5rem"><span class="guide-tag tag-do">✓ PDF</span><span class="guide-tag tag-dont">✗ .doc / .docx</span></div>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <h2>🤖 ATS Sistemi Nedir?</h2>
+      <div class="guide-card">
+        <h3>Robot CV'ni okuyor</h3>
+        <p>Büyük şirketlerin çoğu CV'leri önce <strong>ATS (Applicant Tracking System)</strong> adlı yazılımla tarar. Robot ilanda geçen anahtar kelimeleri arar. Bulamazsa CV çöpe gider, insan gözüne bile ulaşmaz.</p>
+      </div>
+      <div class="guide-card">
+        <h3>ATS'yi nasıl geçersin?</h3>
+        <p>İş ilanındaki anahtar kelimeleri CV'ne ekle. Tablo, sütun, grafik kullanma — robot okuyamaz. Sade tek sütun düzen tercih et. Başlıkları standart yaz: "Deneyim", "Eğitim", "Beceriler".</p>
+        <div style="margin-top:.5rem"><span class="guide-tag tag-do">✓ Anahtar kelimeler</span><span class="guide-tag tag-do">✓ Sade format</span><span class="guide-tag tag-dont">✗ Tablolar</span><span class="guide-tag tag-dont">✗ Grafikler</span></div>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <h2>📸 Fotoğraf Meselesi</h2>
+      <div class="guide-card">
+        <h3>Koymalı mıyım?</h3>
+        <p><strong>Türkiye'de:</strong> Yaygın ve bekleniyor. Profesyonel, nötr arka planlı bir fotoğraf koy.<br><strong>Avrupa / ABD'de:</strong> Kesinlikle koyma. Ayrımcılık iddiasından kaçınmak için şirketler fotoğrafsız CV tercih eder.</p>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <h2>📝 Özet Bölümü</h2>
+      <div class="guide-card">
+        <h3>3-4 cümle, maksimum etki</h3>
+        <p>Özet bölümü CV'nin en çok okunan yeridir. "Motive, ekip odaklı çalışanım" gibi boş cümleler yazma. Somut ol: kaç yıl deneyim, hangi teknoloji, ne başardın.</p>
+        <div style="margin-top:.5rem"><span class="guide-tag tag-dont">✗ "Ekip çalışmasına yatkınım"</span><span class="guide-tag tag-do">✓ "5 yıl React deneyimi, 3 startup'ta ürün geliştirdim"</span></div>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <h2>💼 Deneyim Bölümü</h2>
+      <div class="guide-card">
+        <h3>Görev değil, başarı yaz</h3>
+        <p>"Raporlar hazırladım" değil, "Aylık 40 saatlik rapor sürecini otomatize ettim" yaz. Rakam ve sonuç içeren maddeler 3x daha dikkat çeker.</p>
+        <div style="margin-top:.5rem"><span class="guide-tag tag-dont">✗ "Müşteri toplantılarına katıldım"</span><span class="guide-tag tag-do">✓ "20+ müşteri görüşmesi yürüttüm, %30 dönüşüm artışı sağladım"</span></div>
+      </div>
+      <div class="guide-card">
+        <h3>İş arasında boşluk varsa?</h3>
+        <p>6 aydan uzun boşluklarda kısa açıklama yaz. "Kişisel gelişim", "Freelance projeler", "Yurt dışı deneyimi" gibi. Açıklanmayan boşluklar kırmızı bayrak olur.</p>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <h2>🎯 Her Başvuruya Özel CV</h2>
+      <div class="guide-card">
+        <h3>Tek CV herkese gönderilmez</h3>
+        <p>Her iş ilanı için CV'ni hafifçe özelleştir. İlandaki kritik kelimeleri ekle, o şirketin değerlerine atıf yap. CVcraft'ın "İlana Göre Uyarla" özelliği bunu otomatik yapar.</p>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:2rem">
+      <button class="btn-gold" onclick="showPage('builder')">Rehberi Uygulamaya Koy — CV Oluştur →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ EXAMPLES PAGE ══ -->
+<div class="page" id="page-examples">
+  <div class="examples-wrap">
+    <div class="examples-hero">
+      <h1>Örnek <span style="color:var(--gold)">CV'ler</span></h1>
+      <p style="color:var(--muted)">Farklı sektörlerden gerçekçi örnekler — ilham al, şablonu kullan.</p>
+    </div>
+    <div class="sector-filters">
+      <button class="filter-btn active" onclick="filterEx('all',this)">Tümü</button>
+      <button class="filter-btn" onclick="filterEx('teknoloji',this)">Teknoloji</button>
+      <button class="filter-btn" onclick="filterEx('tasarim',this)">Tasarım</button>
+      <button class="filter-btn" onclick="filterEx('pazarlama',this)">Pazarlama</button>
+      <button class="filter-btn" onclick="filterEx('finans',this)">Finans</button>
+    </div>
+    <div class="example-grid" id="exampleGrid"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle">AI Araç</h2>
+      <button class="modal-close" onclick="closeModalBtn()">×</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────
+const state = {
+  step: 1,
+  lang: 'tr',
+  template: 'klasik',
+  skills: [],
+  certs: [],
+  interests: [],
+  fields: {},
+  aiResults: {}
+};
+const STEPS = [
+  {id:1, label:'Kişisel'},
+  {id:2, label:'Deneyim'},
+  {id:3, label:'Eğitim'},
+  {id:4, label:'Beceriler'},
+  {id:5, label:'Ekstralar'},
+  {id:6, label:'Şablon'},
+  {id:7, label:'CV & AI'}
+];
+
+// ─── NAV ─────────────────────────────────────────────
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  if (el) el.classList.add('active');
+  if (id === 'builder') renderBuilder();
+  if (id === 'examples') renderExamples();
+  window.scrollTo(0,0);
+}
+function toggleMenu() {
+  const h = document.getElementById('hamburger');
+  const m = document.getElementById('mobileMenu');
+  h.classList.toggle('open');
+  m.classList.toggle('open');
+}
+
+// ─── BUILDER ─────────────────────────────────────────
+function renderBuilder() {
+  renderStepBar();
+  renderStep(state.step);
+}
+
+function renderStepBar() {
+  const bar = document.getElementById('stepBar');
+  bar.innerHTML = STEPS.map((s,i) => `
+    <div class="step-item ${state.step === s.id ? 'active' : state.step > s.id ? 'done' : ''}">
+      <div class="step-num">${state.step > s.id ? '✓' : s.id}</div>
+      <div class="step-txt">${s.label}</div>
+    </div>
+    ${i < STEPS.length-1 ? '<div class="step-line"></div>' : ''}
+  `).join('');
+}
+
+function goStep(n) {
+  saveFields();
+  state.step = n;
+  renderStepBar();
+  renderStep(n);
+  document.querySelector('.builder-wrap').scrollIntoView({behavior:'smooth'});
+}
+
+function saveFields() {
+  document.querySelectorAll('#builderContent input, #builderContent textarea, #builderContent select').forEach(el => {
+    if (el.id) state.fields[el.id] = el.value;
+  });
+}
+
+function f(id) { return state.fields[id] || ''; }
+
+function renderStep(n) {
+  const c = document.getElementById('builderContent');
+  const steps = {
+    1: step1, 2: step2, 3: step3, 4: step4,
+    5: step5, 6: step6, 7: step7
+  };
+  c.innerHTML = steps[n]();
+  restoreFields();
+}
+
+function restoreFields() {
+  Object.entries(state.fields).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  });
+}
+
+function step1() {
+  return `<div class="card">
+    <div class="card-title">Kişisel <span>Bilgiler</span></div>
+    <div class="fg"><div class="field"><label>Ad Soyad *</label><input id="f_name" placeholder="Ahmet Yılmaz"></div>
+    <div class="field"><label>Hedef Pozisyon *</label><input id="f_role" placeholder="Frontend Geliştirici"></div></div>
+    <div class="fg"><div class="field"><label>E-posta</label><input id="f_email" type="email" placeholder="ahmet@email.com"></div>
+    <div class="field"><label>Telefon</label><input id="f_phone" placeholder="+90 555 000 00 00"></div></div>
+    <div class="fg"><div class="field"><label>Şehir</label><input id="f_city" placeholder="İstanbul"></div>
+    <div class="field"><label>LinkedIn / Portfolio</label><input id="f_linkedin" placeholder="linkedin.com/in/ahmet"></div></div>
+    <div class="fg full"><div class="field"><label>GitHub / Website (opsiyonel)</label><input id="f_github" placeholder="github.com/ahmet"></div></div>
+    <div class="fg full"><div class="field"><label>Sektör</label>
+    <select id="f_sector"><option value="teknoloji">Teknoloji / Yazılım</option><option value="tasarim">Tasarım</option><option value="pazarlama">Pazarlama</option><option value="finans">Finans</option><option value="muhendislik">Mühendislik</option><option value="saglik">Sağlık</option><option value="egitim">Eğitim</option><option value="diger">Diğer</option></select></div></div>
+    <div class="btn-row"><button class="btn-next" onclick="goStep(2)">Devam →</button></div>
+  </div>`;
+}
+
+function step2() {
+  return `<div class="card">
+    <div class="card-title">İş <span>Deneyimi</span></div>
+    <div class="fg full"><div class="field"><label>Son İş — Şirket & Pozisyon *</label><input id="f_exp1" placeholder="ABC Teknoloji — Frontend Geliştirici (2022–2024)"></div></div>
+    <div class="fg full"><div class="field"><label>Ne yaptın? (AI genişletecek)</label><textarea id="f_exp1desc" placeholder="React ile dashboard geliştirdim, REST API entegrasyonları yaptım, performansı %40 artırdım..."></textarea><div class="hint">Kısa notlar yazman yeterli, AI profesyonel hale getirir.</div></div></div>
+    <div class="fg full"><div class="field"><label>Önceki İş / Staj (opsiyonel)</label><input id="f_exp2" placeholder="XYZ Ajans — Junior Geliştirici (2020–2022)"></div></div>
+    <div class="fg full"><div class="field"><label>Açıklama</label><textarea id="f_exp2desc" placeholder="Vue.js ile kullanıcı arayüzleri geliştirdim..."></textarea></div></div>
+    <div class="fg full"><div class="field"><label>3. Deneyim / Freelance (opsiyonel)</label><input id="f_exp3" placeholder="Freelance — Web Geliştirici (2019–2020)"></div></div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="goStep(1)">← Geri</button>
+      <button class="btn-next" onclick="goStep(3)">Devam →</button>
+    </div>
+  </div>`;
+}
+
+function step3() {
+  return `<div class="card">
+    <div class="card-title">Eğitim & <span>Sertifikalar</span></div>
+    <div class="fg full"><div class="field"><label>Üniversite / Lise</label><input id="f_edu1" placeholder="İstanbul Teknik Üniversitesi — Bilgisayar Müh. (2018–2022)"></div></div>
+    <div class="fg full"><div class="field"><label>Diğer Eğitim (opsiyonel)</label><input id="f_edu2" placeholder="Boğaziçi Üniversitesi — Yüksek Lisans (2022–2024)"></div></div>
+    <div class="fg full" style="margin-top:1.2rem"><div class="card-title" style="font-size:1rem;margin-bottom:.75rem">Sertifikalar <span>& Kurslar</span></div>
+    <div class="field"><label>Sertifika Ekle</label>
+    <div class="tag-row"><input id="certInput" placeholder="AWS Solutions Architect, Udemy React..." onkeydown="if(event.key==='Enter')addTag('cert')"><button class="add-btn" onclick="addTag('cert')">+ Ekle</button></div>
+    <div class="tags" id="certTags"></div></div></div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="goStep(2)">← Geri</button>
+      <button class="btn-next" onclick="goStep(4)">Devam →</button>
+    </div>
+  </div>`;
+}
+
+function step4() {
+  return `<div class="card">
+    <div class="card-title">Beceriler & <span>Diller</span></div>
+    <div class="fg full"><div class="field"><label>Teknik / Mesleki Beceriler</label>
+    <div class="tag-row"><input id="skillInput" placeholder="React, Python, Figma, Excel..." onkeydown="if(event.key==='Enter')addTag('skill')"><button class="add-btn" onclick="addTag('skill')">+ Ekle</button></div>
+    <div class="tags" id="skillTags"></div></div></div>
+    <div class="fg" style="margin-top:1rem">
+      <div class="field"><label>Dil 1</label><input id="f_lang1" placeholder="Türkçe — Ana Dil"></div>
+      <div class="field"><label>Dil 2</label><input id="f_lang2" placeholder="İngilizce — İleri (C1)"></div>
+    </div>
+    <div class="fg">
+      <div class="field"><label>Dil 3 (opsiyonel)</label><input id="f_lang3" placeholder="Almanca — Başlangıç (A2)"></div>
+      <div class="field"><label>Dil 4 (opsiyonel)</label><input id="f_lang4" placeholder="Fransızca — Orta (B1)"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="goStep(3)">← Geri</button>
+      <button class="btn-next" onclick="goStep(5)">Devam →</button>
+    </div>
+  </div>`;
+}
+
+function step5() {
+  return `<div class="card">
+    <div class="card-title">Ekstra <span>Bilgiler</span></div>
+    <div class="fg full"><div class="field"><label>Projeler (link ile birlikte)</label><textarea id="f_projects" placeholder="E-ticaret uygulaması — React + Node.js (github.com/ahmet/shop)&#10;Portfolio sitesi — Vue.js (ahmetyilmaz.com)"></textarea></div></div>
+    <div class="fg full"><div class="field"><label>Başarılar / Ödüller</label><textarea id="f_achievements" placeholder="Hackathon 1. lik (2023)&#10;En İyi Stajyer Ödülü — ABC Şirketi (2021)"></textarea></div></div>
+    <div class="fg full"><div class="field"><label>Gönüllü Çalışmalar</label><input id="f_volunteer" placeholder="TEMA Vakfı — Gönüllü (2022–devam)"></div></div>
+    <div class="fg full"><div class="field"><label>İlgi Alanları / Hobiler</label>
+    <div class="tag-row"><input id="interestInput" placeholder="Fotoğrafçılık, Açık kaynak, Satranç..." onkeydown="if(event.key==='Enter')addTag('interest')"><button class="add-btn" onclick="addTag('interest')">+ Ekle</button></div>
+    <div class="tags" id="interestTags"></div></div></div>
+    <div class="fg full"><div class="field"><label>Referanslar (opsiyonel)</label><textarea id="f_refs" placeholder="İstek üzerine sunulabilir&#10;veya&#10;Ayşe Kaya — ABC Şirketi Müdürü — ayse@abc.com"></textarea></div></div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="goStep(4)">← Geri</button>
+      <button class="btn-next" onclick="goStep(6)">Devam →</button>
+    </div>
+  </div>`;
+}
+
+function step6() {
+  return `<div class="card">
+    <div class="card-title">Şablon & <span>Dil Seçimi</span></div>
+    <div style="margin-bottom:1.5rem">
+      <label style="display:block;margin-bottom:.75rem">CV Şablonu</label>
+      <div class="templates">
+        <div class="tpl ${state.template==='modern'?'selected':''}" onclick="selectTpl('modern',this)">
+          <div class="tpl-icon">🏙️</div>
+          <div class="tpl-name">Modern</div>
+          <div class="tpl-desc">Koyu başlık, çarpıcı</div>
+        </div>
+        <div class="tpl ${state.template==='klasik'?'selected':''}" onclick="selectTpl('klasik',this)">
+          <div class="tpl-icon">📄</div>
+          <div class="tpl-name">Klasik</div>
+          <div class="tpl-desc">Temiz, ATS uyumlu</div>
+        </div>
+        <div class="tpl ${state.template==='minimal'?'selected':''}" onclick="selectTpl('minimal',this)">
+          <div class="tpl-icon">✦</div>
+          <div class="tpl-name">Minimal</div>
+          <div class="tpl-desc">Sade, şık çizgiler</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <label style="display:block;margin-bottom:.75rem">CV Dili</label>
+      <div class="lang-toggle">
+        <button class="lang-btn ${state.lang==='tr'?'selected':''}" onclick="selectLang('tr',this)">🇹🇷 Türkçe</button>
+        <button class="lang-btn ${state.lang==='en'?'selected':''}" onclick="selectLang('en',this)">🇬🇧 English</button>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="goStep(5)">← Geri</button>
+      <button class="btn-next" onclick="goStep(7)">CV Oluştur ✦</button>
+    </div>
+  </div>`;
+}
+
+function step7() {
+  return `<div class="card">
+    <div class="card-title">CV'n <span>Hazır</span></div>
+    <div class="ai-tools">
+      <button class="ai-tool-btn" onclick="runAI('score')"><div class="tool-icon">📊</div><div class="tool-name">CV Skoru</div><div class="tool-desc">Güçlü ve eksik yönlerini analiz et</div></button>
+      <button class="ai-tool-btn" onclick="openModal('ilan')"><div class="tool-icon">🎯</div><div class="tool-name">İlana Göre Uyarla</div><div class="tool-desc">İş ilanını yapıştır, CV'ni optimize et</div></button>
+      <button class="ai-tool-btn" onclick="runAI('mulakat')"><div class="tool-icon">🎤</div><div class="tool-name">Mülakat Soruları</div><div class="tool-desc">Sana sorulabilecek soruları gör</div></button>
+      <button class="ai-tool-btn" onclick="runAI('kapak')"><div class="tool-icon">✉️</div><div class="tool-name">Kapak Mektubu</div><div class="tool-desc">CV'nden otomatik cover letter</div></button>
+      <button class="ai-tool-btn" onclick="runAI('linkedin')"><div class="tool-icon">💼</div><div class="tool-name">LinkedIn Özeti</div><div class="tool-desc">Hakkımda bölümü için AI metin</div></button>
+    </div>
+    <div id="aiOutputArea"></div>
+    <div id="cvPreview"></div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="goStep(6)">← Geri</button>
+      <button class="btn-next" onclick="buildCV()">CV Oluştur & Göster</button>
+    </div>
+  </div>`;
+}
+
+// ─── TEMPLATE & LANG ─────────────────────────────────
+function selectTpl(t, el) {
+  state.template = t;
+  document.querySelectorAll('.tpl').forEach(x => x.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function selectLang(l, el) {
+  state.lang = l;
+  document.querySelectorAll('.lang-btn').forEach(x => x.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ─── TAGS ────────────────────────────────────────────
+function addTag(type) {
+  const inp = document.getElementById(type+'Input');
+  const val = inp.value.trim();
+  if (!val) return;
+  if (type==='skill') state.skills.push(val);
+  else if (type==='cert') state.certs.push(val);
+  else if (type==='interest') state.interests.push(val);
+  inp.value = '';
+  renderTags(type);
+}
+function removeTag(type, i) {
+  if (type==='skill') state.skills.splice(i,1);
+  else if (type==='cert') state.certs.splice(i,1);
+  else if (type==='interest') state.interests.splice(i,1);
+  renderTags(type);
+}
+function renderTags(type) {
+  const arr = type==='skill' ? state.skills : type==='cert' ? state.certs : state.interests;
+  const el = document.getElementById(type+'Tags');
+  if (!el) return;
+  el.innerHTML = arr.map((s,i) => `<div class="tag">${s}<button onclick="removeTag('${type}',${i})">×</button></div>`).join('');
+}
+
+// ─── CV BUILD ────────────────────────────────────────
+async function buildCV() {
+  saveFields();
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = '⏳ AI yazıyor...';
+
+  const isEn = state.lang === 'en';
+  const prompt = isEn
+    ? `You are a professional CV writer. Generate English CV content based on this data and respond ONLY with JSON, no markdown:
+{"summary":"3-4 sentence professional summary","exp1":"3 bullet points for main job (• bullets)","exp2":"2 bullets for second job or empty string","exp3":"2 bullets for third job or empty string"}
+Data: Name:${f('f_name')}, Role:${f('f_role')}, Sector:${f('f_sector')}, Job1:${f('f_exp1')}, Desc1:${f('f_exp1desc')}, Job2:${f('f_exp2')}, Desc2:${f('f_exp2desc')}, Job3:${f('f_exp3')}, Edu:${f('f_edu1')}, Skills:${state.skills.join(',')}`
+    : `Sen profesyonel bir CV yazarısın. Aşağıdaki verilere göre Türkçe CV içeriği oluştur ve SADECE JSON ile yanıtla, markdown kullanma:
+{"ozet":"3-4 cümlelik güçlü profesyonel özet","deneyim1":"Son iş için 3 madde (• ile başlayan)","deneyim2":"İkinci iş için 2 madde veya boş string","deneyim3":"Üçüncü iş için 2 madde veya boş string"}
+Veri: Ad:${f('f_name')}, Pozisyon:${f('f_role')}, Sektör:${f('f_sector')}, İş1:${f('f_exp1')}, Açıklama1:${f('f_exp1desc')}, İş2:${f('f_exp2')}, Açıklama2:${f('f_exp2desc')}, İş3:${f('f_exp3')}, Eğitim:${f('f_edu1')}, Beceriler:${state.skills.join(',')}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data = await res.json();
+    const text = data.content.map(c=>c.text||'').join('');
+    const clean = text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+    state.aiResults.cv = parsed;
+  } catch(e) {
+    state.aiResults.cv = {
+      ozet: `${f('f_role')} alanında deneyimli profesyonel. ${f('f_sector')} sektöründe güçlü bir geçmişe sahip.`,
+      summary: `Experienced ${f('f_role')} with a strong background in ${f('f_sector')}.`,
+      deneyim1: `• ${f('f_exp1desc')||'Projeleri başarıyla yönettim.'}\n• Süreç iyileştirmeleri gerçekleştirdim.\n• Takım çalışmasına katkı sağladım.`,
+      exp1: `• ${f('f_exp1desc')||'Led key projects successfully.'}\n• Improved processes and workflows.\n• Collaborated effectively with team.`,
+      deneyim2: f('f_exp2') ? '• Temel süreçleri öğrendim.\n• Ekiple uyumlu çalıştım.' : '',
+      exp2: f('f_exp2') ? '• Learned core processes.\n• Collaborated with the team.' : '',
+      deneyim3: '', exp3: ''
+    };
+  }
+  renderCVPreview();
+  btn.disabled = false;
+  btn.textContent = 'CV Oluştur & Göster';
+}
+
+function renderCVPreview() {
+  const r = state.aiResults.cv || {};
+  const isEn = state.lang === 'en';
+  const isMod = state.template === 'modern';
+  const isMin = state.template === 'minimal';
+
+  const langs = [f('f_lang1'),f('f_lang2'),f('f_lang3'),f('f_lang4')].filter(Boolean).join(' · ');
+  const contact = [f('f_email'),f('f_phone'),f('f_city'),f('f_linkedin'),f('f_github')].filter(Boolean).map(x=>`<span>${x}</span>`).join('');
+
+  const headerHTML = `<h2>${f('f_name')||'Ad Soyad'}</h2><div class="cv-role">${f('f_role')||'Pozisyon'}</div><div class="cv-contact">${contact}</div>`;
+
+  const bodyHTML = `
+    <div class="cv-sec"><div class="cv-sec-title">${isEn?'Professional Summary':'Profesyonel Özet'}</div><hr class="cv-divider"><div class="cv-body">${isEn?r.summary:r.ozet}</div></div>
+    ${f('f_exp1')?`<div class="cv-sec"><div class="cv-sec-title">${isEn?'Experience':'Deneyim'}</div><hr class="cv-divider">
+      <strong style="font-size:.82rem;color:#1a2e42">${f('f_exp1')}</strong><div class="cv-body" style="margin-top:.35rem">${isEn?r.exp1:r.deneyim1}</div>
+      ${f('f_exp2')&&(isEn?r.exp2:r.deneyim2)?`<br><strong style="font-size:.82rem;color:#1a2e42">${f('f_exp2')}</strong><div class="cv-body" style="margin-top:.35rem">${isEn?r.exp2:r.deneyim2}</div>`:''}
+      ${f('f_exp3')&&(isEn?r.exp3:r.deneyim3)?`<br><strong style="font-size:.82rem;color:#1a2e42">${f('f_exp3')}</strong><div class="cv-body" style="margin-top:.35rem">${isEn?r.exp3:r.deneyim3}</div>`:''}
+    </div>`:''}
+    ${f('f_edu1')?`<div class="cv-sec"><div class="cv-sec-title">${isEn?'Education':'Eğitim'}</div><hr class="cv-divider"><div class="cv-body">${f('f_edu1')}${f('f_edu2')?'\n'+f('f_edu2'):''}</div></div>`:''}
+    ${state.certs.length?`<div class="cv-sec"><div class="cv-sec-title">${isEn?'Certifications':'Sertifikalar'}</div><hr class="cv-divider"><div class="cv-body">${state.certs.join(' · ')}</div></div>`:''}
+    ${state.skills.length?`<div class="cv-sec"><div class="cv-sec-title">${isEn?'Skills':'Beceriler'}</div><hr class="cv-divider"><div class="cv-skills-row">${state.skills.map(s=>`<span class="cv-skill">${s}</span>`).join('')}</div></div>`:''}
+    ${langs?`<div class="cv-sec"><div class="cv-sec-title">${isEn?'Languages':'Diller'}</div><hr class="cv-divider"><div class="cv-body">${langs}</div></div>`:''}
+    ${f('f_projects')?`<div class="cv-sec"><div class="cv-sec-title">${isEn?'Projects':'Projeler'}</div><hr class="cv-divider"><div class="cv-body">${f('f_projects')}</div></div>`:''}
+    ${f('f_achievements')?`<div class="cv-sec"><div class="cv-sec-title">${isEn?'Achievements':'Başarılar'}</div><hr class="cv-divider"><div class="cv-body">${f('f_achievements')}</div></div>`:''}
+    ${state.interests.length?`<div class="cv-sec"><div class="cv-sec-title">${isEn?'Interests':'İlgi Alanları'}</div><hr class="cv-divider"><div class="cv-skills-row">${state.interests.map(s=>`<span class="cv-skill">${s}</span>`).join('')}</div></div>`:''}
+    ${f('f_refs')?`<div class="cv-sec"><div class="cv-sec-title">${isEn?'References':'Referanslar'}</div><hr class="cv-divider"><div class="cv-body">${f('f_refs')}</div></div>`:''}
+  `;
+
+  let cvInner;
+  if (isMod) {
+    cvInner = `<div class="tpl-modern"><div class="cv-white"><div class="cv-header">${headerHTML}</div><div class="cv-body-wrap">${bodyHTML}</div></div></div>`;
+  } else if (isMin) {
+    cvInner = `<div class="tpl-minimal"><div class="cv-white">${headerHTML}${bodyHTML}</div></div>`;
+  } else {
+    cvInner = `<div class="cv-white">${headerHTML}${bodyHTML}</div>`;
+  }
+
+  document.getElementById('cvPreview').innerHTML = cvInner + `
+    <div class="output-actions">
+      <button class="act-btn act-copy" onclick="copyCV()">📋 Metni Kopyala</button>
+      <button class="act-btn act-pdf" onclick="printCV()">⬇️ PDF İndir</button>
+    </div>`;
+}
+
+// ─── AI TOOLS ────────────────────────────────────────
+async function runAI(type) {
+  saveFields();
+  const area = document.getElementById('aiOutputArea');
+  const titles = {score:'CV Skoru Analizi',mulakat:'Mülakat Soruları',kapak:'Kapak Mektubu',linkedin:'LinkedIn Özeti'};
+  area.innerHTML = `<div class="ai-box"><div class="ai-box-header"><div class="pulse"></div>${titles[type]} hesaplanıyor...</div><pre style="color:var(--muted);font-style:italic">AI düşünüyor...</pre></div>`;
+
+  const prompts = {
+    score: `CV için Türkçe skor analizi yap. SADECE JSON: {"skor":75,"guclu":["madde1","madde2","madde3"],"eksik":["madde1","madde2","madde3"],"oneri":"genel öneri cümlesi"}
+Veriler: Ad:${f('f_name')}, Pozisyon:${f('f_role')}, Exp1:${f('f_exp1')}, Exp1Desc:${f('f_exp1desc')}, Edu:${f('f_edu1')}, Beceriler:${state.skills.join(',')}, Sertifikalar:${state.certs.join(',')}`,
+    mulakat: `Bu CV sahibine sorulabilecek 5 mülakat sorusu ve kısa cevap ipuçları yaz. Türkçe, madde madde. Veriler: Pozisyon:${f('f_role')}, Sektör:${f('f_sector')}, Exp:${f('f_exp1')}, Beceriler:${state.skills.join(',')}`,
+    kapak: `Bu CV için Türkçe kapak mektubu yaz. Samimi, profesyonel, 3 paragraf. Veriler: Ad:${f('f_name')}, Pozisyon:${f('f_role')}, Şirket: [Şirket Adı], Exp:${f('f_exp1')}, Beceriler:${state.skills.join(',')}`,
+    linkedin: `Bu kişi için LinkedIn "Hakkımda" bölümü yaz. Türkçe, 150-200 kelime, birinci şahıs, profesyonel ama samimi. Veriler: Ad:${f('f_name')}, Pozisyon:${f('f_role')}, Exp:${f('f_exp1')}, Edu:${f('f_edu1')}, Beceriler:${state.skills.join(',')}`
+  };
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompts[type]}]})});
+    const data = await res.json();
+    const text = data.content.map(c=>c.text||'').join('');
+
+    if (type === 'score') {
+      const clean = text.replace(/```json|```/g,'').trim();
+      const parsed = JSON.parse(clean);
+      const color = parsed.skor >= 80 ? '#4CAF82' : parsed.skor >= 60 ? '#C9A84C' : '#E05252';
+      area.innerHTML = `<div class="ai-box">
+        <div class="ai-box-header"><div class="pulse"></div>CV Skoru</div>
+        <div class="score-wrap">
+          <div class="score-circle" style="border-color:${color};color:${color}">${parsed.skor}</div>
+          <div class="score-label">/100 puan</div>
+        </div>
+        <div class="score-tips">
+          ${parsed.guclu.map(g=>`<div class="score-tip"><span class="tip-icon">✅</span>${g}</div>`).join('')}
+          ${parsed.eksik.map(e=>`<div class="score-tip"><span class="tip-icon">⚠️</span>${e}</div>`).join('')}
+          <div class="score-tip" style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2)"><span class="tip-icon">💡</span>${parsed.oneri}</div>
+        </div>
+      </div>`;
+    } else {
+      area.innerHTML = `<div class="ai-box"><div class="ai-box-header"><div class="pulse"></div>${titles[type]}</div><pre>${text}</pre></div>`;
+    }
+  } catch(e) {
+    area.innerHTML = `<div class="ai-box"><pre style="color:var(--muted)">Bağlantı hatası oluştu. Lütfen tekrar dene.</pre></div>`;
+  }
+}
+
+// ─── MODAL (İLAN UYARLAMA) ──────────────────────────
+function openModal(type) {
+  document.getElementById('modalTitle').textContent = 'İş İlanına Göre Uyarla';
+  document.getElementById('modalBody').innerHTML = `
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:1rem">İş ilanını aşağıya yapıştır. AI, CV'ni o ilanın anahtar kelimelerine göre optimize eder.</p>
+    <div class="field"><label>İş İlanı Metni</label>
+    <textarea id="modalIlan" style="min-height:150px" placeholder="İş ilanını buraya yapıştır..."></textarea></div>
+    <div class="btn-row" style="margin-top:1rem">
+      <button class="btn-next" onclick="runIlanAI()">✦ Analiz Et & Uyarla</button>
+    </div>
+    <div id="modalAiOut"></div>`;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+async function runIlanAI() {
+  saveFields();
+  const ilan = document.getElementById('modalIlan').value;
+  if (!ilan.trim()) { showToast('İlan metnini gir!'); return; }
+  document.getElementById('modalAiOut').innerHTML = `<div class="ai-box" style="margin-top:1rem"><pre style="color:var(--muted);font-style:italic">Analiz ediliyor...</pre></div>`;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:`Bu iş ilanını ve CV bilgilerini analiz et. Türkçe olarak şunları söyle: 1) İlana göre güçlü noktalar, 2) Eksik anahtar kelimeler, 3) CV özetine eklenebilecek yeni özet önerisi.\n\nİlan: ${ilan}\n\nCV: Pozisyon:${f('f_role')}, Exp:${f('f_exp1')}, Beceriler:${state.skills.join(',')}`}]})});
+    const data = await res.json();
+    const text = data.content.map(c=>c.text||'').join('');
+    document.getElementById('modalAiOut').innerHTML = `<div class="ai-box" style="margin-top:1rem"><div class="ai-box-header"><div class="pulse"></div>Analiz Sonucu</div><pre>${text}</pre></div>`;
+  } catch(e) {
+    document.getElementById('modalAiOut').innerHTML = `<div class="ai-box" style="margin-top:1rem"><pre style="color:var(--muted)">Hata oluştu.</pre></div>`;
+  }
+}
+function closeModal(e) { if (e.target===document.getElementById('modalOverlay')) closeModalBtn(); }
+function closeModalBtn() { document.getElementById('modalOverlay').classList.remove('open'); }
+
+// ─── COPY & PDF ──────────────────────────────────────
+function copyCV() {
+  const el = document.querySelector('.cv-white');
+  if (!el) { showToast('Önce CV oluştur!'); return; }
+  navigator.clipboard.writeText(el.innerText).then(() => showToast('✓ Kopyalandı!'));
+}
+function printCV() {
+  const el = document.querySelector('.cv-white');
+  if (!el) { showToast('Önce CV oluştur!'); return; }
+  const w = window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>CV</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:'Inter',sans-serif;margin:2cm;color:#1a1a2e;line-height:1.6}
+    h2{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;margin-bottom:.2rem}
+    .cv-role{color:#C9A84C;font-size:.95rem;font-weight:600;margin-bottom:.6rem}
+    .cv-contact{font-size:.78rem;color:#778;display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;margin-bottom:1.2rem}
+    .cv-sec-title{font-family:'Syne',sans-serif;font-size:.65rem;text-transform:uppercase;letter-spacing:.12em;color:#C9A84C;font-weight:700;margin-bottom:.4rem}
+    hr{border:none;border-top:1.5px solid #C9A84C;opacity:.3;margin:.6rem 0 .8rem}
+    .cv-sec{margin-bottom:1.1rem}
+    .cv-body{font-size:.85rem;color:#334;white-space:pre-wrap}
+    .cv-skills-row{display:flex;flex-wrap:wrap;gap:.35rem}
+    .cv-skill{background:#f0f0f0;border-radius:4px;padding:.18rem .55rem;font-size:.76rem}
+    @media print{body{margin:1cm}}
+  </style></head><body>${el.innerHTML}</body></html>`);
+  w.document.close();
+  setTimeout(() => w.print(), 600);
+}
+
+// ─── TOAST ───────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ─── EXAMPLES ────────────────────────────────────────
+const EXAMPLES = [
+  {name:'Emirhan Yıldız',role:'Frontend Geliştirici',sector:'teknoloji',summary:'5 yıl React ve TypeScript deneyimi. 3 farklı startup\'ta ürün geliştirdi.',exp:'TechCorp — Senior Frontend (2021–2024)',skills:['React','TypeScript','Node.js','AWS','Figma']},
+  {name:'Selin Arslan',role:'UX/UI Tasarımcı',sector:'tasarim',summary:'Kullanıcı odaklı tasarım anlayışıyla 50+ dijital ürün tasarladı.',exp:'DesignHub — UX Lead (2020–2024)',skills:['Figma','Adobe XD','Protopie','User Research']},
+  {name:'Mert Kaya',role:'Dijital Pazarlama Uzmanı',sector:'pazarlama',summary:'SEO ve sosyal medya stratejileriyle markalar için %200 büyüme sağladı.',exp:'MediaGroup — Pazarlama Müdürü (2019–2024)',skills:['Google Ads','SEO','Meta Ads','Analytics','Content']},
+  {name:'Zeynep Demir',role:'Finansal Analist',sector:'finans',summary:'CFA adayı, 4 yıllık yatırım bankacılığı deneyimi.',exp:'GoldBank — Kıdemli Analist (2020–2024)',skills:['Excel','Python','Bloomberg','Finansal Modelleme']},
+  {name:'Burak Şahin',role:'Backend Geliştirici',sector:'teknoloji',summary:'Python ve microservices mimarisi konusunda uzman.',exp:'CloudTech — Backend Dev (2021–2024)',skills:['Python','Django','PostgreSQL','Docker','Kubernetes']},
+  {name:'Ayşe Çelik',role:'Grafik Tasarımcı',sector:'tasarim',summary:'Marka kimliği ve baskı tasarımında 6 yıllık deneyim.',exp:'CreativeCo — Kıdemli Tasarımcı (2018–2024)',skills:['Illustrator','Photoshop','InDesign','Brand Design']},
+];
+let activeFilter = 'all';
+function renderExamples() {
+  const grid = document.getElementById('exampleGrid');
+  const filtered = activeFilter === 'all' ? EXAMPLES : EXAMPLES.filter(e => e.sector === activeFilter);
+  grid.innerHTML = filtered.map((ex,i) => `
+    <div class="example-card" onclick="useExample(${i})">
+      <div class="example-preview">
+        <div class="ep-name">${ex.name}</div>
+        <div class="ep-role">${ex.role}</div>
+        <div class="ep-text">${ex.summary}\n\n${ex.exp}\n\n${ex.skills.join(' · ')}</div>
+      </div>
+      <div class="example-info">
+        <h3>${ex.name}</h3>
+        <p>${ex.role}</p>
+        <span class="example-sector">${ex.sector}</span>
+      </div>
+    </div>`).join('');
+}
+function filterEx(f, el) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderExamples();
+}
+function useExample(i) {
+  const ex = EXAMPLES[i];
+  state.fields['f_name'] = ex.name;
+  state.fields['f_role'] = ex.role;
+  state.skills = [...ex.skills];
+  state.fields['f_exp1'] = ex.exp;
+  state.fields['f_exp1desc'] = ex.summary;
+  showPage('builder');
+  showToast('✓ Örnek yüklendi! Bilgileri düzenleyebilirsin.');
+}
+
+// ─── INIT ─────────────────────────────────────────────
+renderExamples();
+</script>
+</body>
+</html>
